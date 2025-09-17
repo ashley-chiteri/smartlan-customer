@@ -1,14 +1,14 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CartProvider } from "./context/CartContext";
-import Navbar from "./components/Navbar";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CartProvider } from "@/context/CartContext";
+import Navbar from "@/components/Navbar";
 import WhatsAppButton from "@/components/WhatsAppbutton"
-import HomePage from "./pages/HomePage";
+import HomePage from "@/pages/HomePage";
 import ProductsPage from "@/pages/ProductsPage"; // You will build this later
 import { Toaster } from "sonner";
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <CartProvider>
         <div className="min-h-screen bg-gray-50 flex flex-col">
           <Toaster richColors position="top-right" />
@@ -22,7 +22,7 @@ function App() {
           <WhatsAppButton />
         </div>
       </CartProvider>
-    </BrowserRouter>
+    </Router>
   );
 }
 

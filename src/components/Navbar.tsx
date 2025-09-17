@@ -14,9 +14,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Services", href: "/#services" },
     { name: "Products", href: "/products" },
-    { name: "Contact", href: "/#contact" },
   ];
 
   const handleCloseNavSheet = () => {
@@ -38,9 +36,9 @@ export default function Navbar() {
         {/* Desktop Links */}
         <nav className="hidden md:flex gap-6 text-white font-medium">
           {navLinks.map((link) => (
-            <a key={link.name} href={link.href} className="hover:underline">
+            <Link key={link.name} to={link.href} className="hover:underline">
               {link.name}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -131,9 +129,9 @@ export default function Navbar() {
               <div className="text-2xl font-bold text-[#004d66] mb-4">Smart Lan</div>
               <nav className="flex-1 space-y-2">
                 {navLinks.map((link) => (
-                  <a key={link.name} href={link.href} onClick={handleCloseNavSheet} className="flex font-medium items-center p-2 rounded-lg hover:bg-[#004d66]/10 text-black/80">
+                  <Link key={link.name} to={link.href} onClick={handleCloseNavSheet} className="flex font-medium items-center p-2 rounded-lg hover:bg-[#004d66]/10 text-black/80">
                     {link.name}
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </SheetContent>
