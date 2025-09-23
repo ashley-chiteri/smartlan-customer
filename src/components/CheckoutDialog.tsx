@@ -38,6 +38,7 @@ export function CheckoutDialog() {
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const intervalRef = useRef<number | null>(null);
   const [stkPushPolling, setStkPushPolling] = useState<boolean>(false);
+  const [paybillPolling, setPaybillPolling] = useState<boolean>(false);
 
   const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
@@ -135,6 +136,8 @@ export function CheckoutDialog() {
       const { order_ref: newOrderRef } = createOrderResponse.data;
       setOrderRef(newOrderRef);
       setShowPaybillDetails(true);
+      setCheckoutStatus("pending"); // Change status to pending for polling
+    setPaybillPolling(true); // Start polling for Paybill
       toast.info("Order created. Please proceed to pay with Paybill.");
     } catch (error) {
       console.error("Order creation failed:", error);
@@ -145,7 +148,7 @@ export function CheckoutDialog() {
   };
 
   useEffect(() => {
-    if (stkPushPolling && orderRef) {
+    if ((stkPushPolling || paybillPolling) && orderRef) {
       // Polling logic remains the same
       intervalRef.current = window.setInterval(async () => {
         try {
@@ -155,15 +158,17 @@ export function CheckoutDialog() {
           if (response.data.payment_status === "paid") {
             clearInterval(intervalRef.current!);
             setStkPushPolling(false);
+            setPaybillPolling(false);
             setPaymentOutcome("success");
             setShowConfetti(true);
             clearCart();
             setCheckoutStatus("final");
             toast.success("Payment confirmed! Your order is being processed.");
-          } else if (response.data.payment_status === "cancelled") {
+          } else if (response.data.payment_status === "failed") {
             // For failed STK push, a cancellation might occur in the callback
             clearInterval(intervalRef.current!);
             setStkPushPolling(false);
+            setPaybillPolling(false);
             setPaymentOutcome("failed");
             setCheckoutStatus("final");
             toast.error("Payment failed. Please try again.");
@@ -178,7 +183,7 @@ export function CheckoutDialog() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [stkPushPolling, orderRef, clearCart]);
+  }, [stkPushPolling, paybillPolling, orderRef, clearCart]);
 
   const renderContent = () => {
     switch (checkoutStatus) {
