@@ -4,7 +4,7 @@ const dev = {
 };
 
 const prod = {
-  API_URL: "https://smartlan.co.ke/api",
+  API_URL: "https://api.smartlan.co.ke",
 };
 
 export const config = process.env.NODE_ENV === "development" ? dev : prod;

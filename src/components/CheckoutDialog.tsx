@@ -64,7 +64,7 @@ export function CheckoutDialog() {
     try {
       // Step 1: Create a pending order on the backend
       const createOrderResponse = await axios.post(
-        `${API_BASE_URL}/orders/create_order.php`,
+       `${API_BASE_URL}/orders/create_order.php`,
         {
           ...customer,
           items: orderItems,
@@ -79,7 +79,7 @@ export function CheckoutDialog() {
       const stkPushResponse = await axios.post(
         `${API_BASE_URL}/mpesa/stkpush.php`,
         {
-          customer_phone: customer.customer_phone, // 👈 unified naming
+          customer_phone: customer.customer_phone,
           amount: total,
           order_ref: newOrderRef,
         }
@@ -114,7 +114,7 @@ export function CheckoutDialog() {
       customer_phone: formData.get("customer_phone"),
       shipping_address: formData.get("shipping_address"),
     };
-    console.log(customer);
+    //console.log(customer);
 
     const orderItems = cart.map((item) => ({
       product_id: item.id,
@@ -379,7 +379,6 @@ export function CheckoutDialog() {
           </Tabs>
         );
       case "pending":
-        // ... (This section remains unchanged for STK push, but is not used for paybill)
         return (
           <div className="p-4 text-center">
             <LoaderCircle className="mx-auto h-12 w-12 animate-spin text-[#004d66]" />
@@ -398,7 +397,6 @@ export function CheckoutDialog() {
           </div>
         );
       case "final":
-        // ... (This section remains unchanged)
         return (
           <div className="p-4 text-center">
             {paymentOutcome === "success" ? (
@@ -431,7 +429,6 @@ export function CheckoutDialog() {
     }
   };
 
-  // The rest of the component remains the same
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>

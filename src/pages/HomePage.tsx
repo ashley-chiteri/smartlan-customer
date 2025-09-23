@@ -86,7 +86,31 @@ export default function HomePage() {
     <>
       {/* Hero Section */}
       <section className="relative w-full h-[80vh] flex items-center justify-center p-6 ">
-        <div className="absolute inset-0 "></div>
+        {/* SVG geometric background */}
+        {/* <svg
+          className="absolute inset-0 w-full h-full opacity-20 text-[#004d66]"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          <defs>
+            <pattern
+              id="grid"
+              width="40"
+              height="40"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 40 0 L 0 0 0 40"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg> */}
+       
+
         <div className="relative text-center text-black z-10">
           <motion.h1
             initial={{ y: -50, opacity: 0 }}
