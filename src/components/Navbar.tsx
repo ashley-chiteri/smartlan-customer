@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, ShoppingCart, Trash2, Minus, Plus } from "lucide-react";
+import { Menu, ShoppingCart, Trash2, Minus, Plus} from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { Button } from "./ui/button";
 import { CheckoutDialog } from "./CheckoutDialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 import { toast } from "sonner";
 
 export default function Navbar() {
@@ -56,19 +62,30 @@ export default function Navbar() {
                 )}
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[350px] sm:w-[400px] flex flex-col">
+            <SheetContent
+              side="right"
+              className="w-[350px] sm:w-[400px] flex flex-col"
+            >
               <SheetHeader>
                 <SheetTitle className="text-lg font-bold">Your Cart</SheetTitle>
               </SheetHeader>
 
               <div className="mt-2 flex-1 overflow-y-auto space-y-4 px-4">
                 {cart.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center mt-6">
-                    Your cart is empty 🛒
-                  </p>
+                  <div className="flex flex-col items-center justify-center mt-10 text-gray-500">
+                    <div className="bg-gray-100 p-4 rounded-full shadow-sm">
+                      <ShoppingCart className="h-10 w-10 text-gray-400" />
+                    </div>
+                    <p className="mt-3 text-sm font-medium">
+                      Your cart is empty
+                    </p>
+                  </div>
                 ) : (
                   cart.map((item) => (
-                    <div key={item.id} className="relative bg-white border rounded-lg shadow-sm p-4">
+                    <div
+                      key={item.id}
+                      className="relative bg-white border rounded-lg shadow-sm p-4"
+                    >
                       <button
                         onClick={() => {
                           removeFromCart(item.id);
@@ -80,16 +97,24 @@ export default function Navbar() {
                       </button>
 
                       <div className="flex flex-col">
-                        <h3 className="font-semibold text-[#004d66]">{item.name}</h3>
-                        <p className="text-sm text-gray-500">Ksh {item.price.toLocaleString()}</p>
+                        <h3 className="font-semibold text-[#004d66]">
+                          {item.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Ksh {item.price.toLocaleString()}
+                        </p>
                         <div className="flex items-center mt-3 gap-3">
                           <button
-                            onClick={() => item.quantity > 1 && decreaseQuantity(item.id)}
+                            onClick={() =>
+                              item.quantity > 1 && decreaseQuantity(item.id)
+                            }
                             className="p-1 border rounded hover:bg-gray-100"
                           >
                             <Minus className="h-4 w-4" />
                           </button>
-                          <span className="px-2 font-medium">{item.quantity}</span>
+                          <span className="px-2 font-medium">
+                            {item.quantity}
+                          </span>
                           <button
                             onClick={() => addToCart({ ...item, quantity: 1 })}
                             className="p-1 border rounded hover:bg-gray-100"
@@ -98,7 +123,8 @@ export default function Navbar() {
                           </button>
                         </div>
                         <p className="mt-2 text-sm font-bold text-gray-700">
-                          Subtotal: Ksh {(item.price * item.quantity).toLocaleString()}
+                          Subtotal: Ksh{" "}
+                          {(item.price * item.quantity).toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -125,11 +151,21 @@ export default function Navbar() {
                 <Menu className="h-6 w-6 text-white" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[250px] p-4 bg-white border-black/10">
-              <div className="text-2xl font-bold text-[#004d66] mb-4">Smart Lan</div>
+            <SheetContent
+              side="right"
+              className="w-[250px] p-4 bg-white border-black/10"
+            >
+              <div className="text-2xl font-bold text-[#004d66] mb-4">
+                Smart Lan
+              </div>
               <nav className="flex-1 space-y-2">
                 {navLinks.map((link) => (
-                  <Link key={link.name} to={link.href} onClick={handleCloseNavSheet} className="flex font-medium items-center p-2 rounded-lg hover:bg-[#004d66]/10 text-black/80">
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={handleCloseNavSheet}
+                    className="flex font-medium items-center p-2 rounded-lg hover:bg-[#004d66]/10 text-black/80"
+                  >
                     {link.name}
                   </Link>
                 ))}

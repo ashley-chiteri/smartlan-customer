@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import axios from "axios";
 import { config } from "@/config";
 import { toast } from "sonner";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+//import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/context/CartContext";
 import { LoaderCircle } from "lucide-react";
@@ -22,7 +24,6 @@ type PaymentOutcome = "success" | "failed" | null;
 type PaymentMethod = "stk" | "paybill";
 
 const API_BASE_URL = config.API_URL;
-//const API_BASE_URL = "https://smartlan.co.ke/api";
 
 export function CheckoutDialog() {
   const { cart, clearCart } = useCart();
@@ -65,10 +66,11 @@ export function CheckoutDialog() {
     try {
       // Step 1: Create a pending order on the backend
       const createOrderResponse = await axios.post(
-       `${API_BASE_URL}/orders/create_order.php`,
+        `${API_BASE_URL}/orders/create_order.php`,
         {
           ...customer,
           items: orderItems,
+          payment_method: "stk",
         }
       );
 
@@ -91,14 +93,14 @@ export function CheckoutDialog() {
         setStkPushPolling(true);
       } else {
         toast.error("Failed to initiate STK Push. Please try again.");
-        setCheckoutStatus("final");
         setPaymentOutcome("failed");
+        setCheckoutStatus("final");
       }
     } catch (error) {
       console.error("Checkout failed:", error);
       toast.error("An error occurred during checkout. Please try again.");
-      setCheckoutStatus("final");
       setPaymentOutcome("failed");
+      setCheckoutStatus("final");
     } finally {
       setLoading(false);
     }
@@ -115,7 +117,6 @@ export function CheckoutDialog() {
       customer_phone: formData.get("customer_phone"),
       shipping_address: formData.get("shipping_address"),
     };
-    //console.log(customer);
 
     const orderItems = cart.map((item) => ({
       product_id: item.id,
@@ -130,14 +131,15 @@ export function CheckoutDialog() {
         {
           ...customer,
           items: orderItems,
+          payment_method: "paybill",
         }
       );
 
       const { order_ref: newOrderRef } = createOrderResponse.data;
       setOrderRef(newOrderRef);
       setShowPaybillDetails(true);
-      setCheckoutStatus("pending"); // Change status to pending for polling
-    setPaybillPolling(true); // Start polling for Paybill
+      setCheckoutStatus("pending");
+      setPaybillPolling(true);
       toast.info("Order created. Please proceed to pay with Paybill.");
     } catch (error) {
       console.error("Order creation failed:", error);
@@ -149,7 +151,6 @@ export function CheckoutDialog() {
 
   useEffect(() => {
     if ((stkPushPolling || paybillPolling) && orderRef) {
-      // Polling logic remains the same
       intervalRef.current = window.setInterval(async () => {
         try {
           const response = await axios.get(
@@ -159,18 +160,23 @@ export function CheckoutDialog() {
             clearInterval(intervalRef.current!);
             setStkPushPolling(false);
             setPaybillPolling(false);
-            setPaymentOutcome("success");
+
             setShowConfetti(true);
-            clearCart();
+            setPaymentOutcome("success");
             setCheckoutStatus("final");
+            setDialogOpen(true);
+
             toast.success("Payment confirmed! Your order is being processed.");
+
+            // clear cart *after* UI updates
           } else if (response.data.payment_status === "failed") {
-            // For failed STK push, a cancellation might occur in the callback
             clearInterval(intervalRef.current!);
             setStkPushPolling(false);
             setPaybillPolling(false);
+
             setPaymentOutcome("failed");
             setCheckoutStatus("final");
+            setDialogOpen(true);
             toast.error("Payment failed. Please try again.");
           }
         } catch (error) {
@@ -204,7 +210,7 @@ export function CheckoutDialog() {
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block  text-sm font-medium text-gray-700"
                     >
                       Name
                     </label>
@@ -213,7 +219,7 @@ export function CheckoutDialog() {
                       id="name"
                       name="customer_name"
                       required
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      className="mt-1 block p-1 w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                     />
                   </div>
                   <div>
@@ -228,7 +234,7 @@ export function CheckoutDialog() {
                       id="email"
                       name="customer_email"
                       required
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      className="mt-1 block p-1 w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                     />
                   </div>
                   <div>
@@ -244,7 +250,7 @@ export function CheckoutDialog() {
                       name="customer_phone"
                       pattern="2547\d{8}"
                       required
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      className="mt-1 block w-full p-1 rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                     />
                   </div>
                   <div>
@@ -259,7 +265,7 @@ export function CheckoutDialog() {
                       name="shipping_address"
                       rows={3}
                       required
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      className="mt-1 block w-full p-1 rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                     ></textarea>
                   </div>
                   <Button
@@ -317,7 +323,7 @@ export function CheckoutDialog() {
                         id="name"
                         name="customer_name"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        className="mt-1 block w-full p-1 rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
                     <div>
@@ -332,7 +338,7 @@ export function CheckoutDialog() {
                         id="email"
                         name="customer_email"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        className="mt-1 block w-full p-1 rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
                     <div>
@@ -348,7 +354,7 @@ export function CheckoutDialog() {
                         name="customer_phone"
                         pattern="2547\d{8}"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        className="mt-1 block w-full p-1 rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
                     <div>
@@ -363,7 +369,7 @@ export function CheckoutDialog() {
                         name="shipping_address"
                         rows={3}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        className="mt-1 block w-full p-1 rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       ></textarea>
                     </div>
                     <Button
@@ -381,6 +387,10 @@ export function CheckoutDialog() {
                 </form>
               )}
             </TabsContent>
+            {/*<div className="flex flex-col items-center text-sm text-gray-500 dark:text-gray-400">
+              <Separator className="my-4 dark:bg-gray-800" />
+              <p>Powered by M-Pesa</p>
+            </div>*/}
           </Tabs>
         );
       case "pending":
@@ -405,27 +415,68 @@ export function CheckoutDialog() {
         return (
           <div className="p-4 text-center">
             {paymentOutcome === "success" ? (
-              <div className="text-green-600">
-                <h2 className="text-xl font-bold">🎉 Payment Successful!</h2>
-                <p className="mt-2 text-sm">Thank you for your purchase.</p>
-                <p className="font-mono mt-2">Order Ref: {orderRef}</p>
-                {showConfetti && (
-                  <Confetti
-                    width={width}
-                    height={height}
-                    recycle={false}
-                    onConfettiComplete={() => setShowConfetti(false)}
-                  />
-                )}
-              </div>
+              <Card className="w-full max-w-md mx-auto shadow-lg rounded-md overflow-hidden">
+                {/* Green header */}
+                <CardHeader className="bg-green-600 text-white p-4 text-center">
+                  <h2 className="text-xl font-bold">Payment Successful!</h2>
+                </CardHeader>
+
+                <CardContent className="p-6 text-center bg-white">
+                  <p className="mt-2 text-sm text-gray-700">
+                    Thank you for your purchase.
+                  </p>
+                  <p className="font-mono mt-2 text-gray-600">
+                    Order Ref: {orderRef}
+                  </p>
+
+                  {/* Confetti burst */}
+                  {showConfetti && (
+                    <Confetti
+                      width={width}
+                      height={height}
+                      recycle={false} // one-time burst
+                      numberOfPieces={400} // bigger burst
+                      onConfettiComplete={() => setShowConfetti(false)}
+                    />
+                  )}
+
+                  {/* Continue button */}
+                  <Button
+                    className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg"
+                    onClick={() => {
+                      clearCart(); // clear cart only when leaving success screen
+                      setDialogOpen(false); // close checkout modal
+                      window.location.href = "/products"; // redirect
+                    }}
+                  >
+                    Continue Shopping
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
-              <div className="text-red-600">
-                <h2 className="text-xl font-bold">❌ Payment Failed</h2>
-                <p className="mt-2 text-sm">
-                  There was an issue with your transaction. Please try again.
-                </p>
-                <p className="font-mono mt-2">Order Ref: {orderRef}</p>
-              </div>
+              <Card className="w-full max-w-md mx-auto shadow-lg rounded-md overflow-hidden">
+                {/* Red header */}
+                <div className="bg-red-600 text-white p-4 text-center">
+                  <h2 className="text-xl font-bold">❌ Payment Failed</h2>
+                </div>
+
+                <CardContent className="p-6 text-center bg-white">
+                  <p className="mt-2 text-sm text-gray-700">
+                    There was an issue with your transaction. Please try again.
+                  </p>
+                  <p className="font-mono mt-2 text-gray-600">
+                    Order Ref: {orderRef}
+                  </p>
+
+                  {/* Retry button */}
+                  <Button
+                    className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg"
+                    onClick={() => setCheckoutStatus("initial")}
+                  >
+                    Try Again
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </div>
         );
